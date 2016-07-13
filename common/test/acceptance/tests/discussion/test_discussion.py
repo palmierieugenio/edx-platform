@@ -218,6 +218,51 @@ class DiscussionHomePageTest(UniqueCourseTest):
 
 
 @attr('shard_2')
+class DiscussionNavigationTest(BaseDiscussionTestCase):
+    """
+    Tests for breadcrumbs navigation in the Discussions page nav bar
+    """
+
+    def setUp(self):
+        super(DiscussionNavigationTest, self).setUp()
+        AutoAuthPage(self.browser, course_id=self.course_id).visit()
+
+    def test_breadcrumbs_all_threads(self):
+        thread_id = "test_thread_{}".format(uuid4().hex)
+        thread_fixture = SingleThreadViewFixture(
+            Thread(
+                id=thread_id,
+                body=THREAD_CONTENT_WITH_LATEX,
+                commentable_id=self.discussion_id
+            )
+        )
+        thread_fixture.push()
+        thread_page = DiscussionTabSingleThreadPage(
+            self.browser,
+            self.course_id,
+            self.discussion_id,
+            thread_id
+        )
+        thread_page.visit()
+
+        topic_button = thread_page.q(
+            css=".forum-nav-browse-menu-item[data-discussion-id='{}']".format(self.discussion_id)
+        )
+        self.assertTrue(topic_button.visible)
+        topic_button.click()
+
+        # Verify the thread's topic has been pushed to breadcrumbs
+        breadcrumbs = thread_page.q(css=".breadcrumbs .nav-item")
+        self.assertEqual(len(breadcrumbs), 2)
+        self.assertEqual(breadcrumbs[1].text, "Test Discussion Topic")
+
+        # Verify clicking the first breadcrumb takes you back to all topics
+        breadcrumbs[0].click()
+        breadcrumbs = thread_page.q(css=".breadcrumbs .nav-item")
+        self.assertEqual(len(breadcrumbs), 1)
+
+
+@attr('shard_2')
 class DiscussionTabSingleThreadTest(BaseDiscussionTestCase, DiscussionResponsePaginationTestMixin):
     """
     Tests for the discussion page displaying a single thread
