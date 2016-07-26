@@ -105,15 +105,11 @@ class DarkLangView(View):
         """
         message = None
         show_refresh_message = False
-        if LANGUAGE_INPUT_FIELD not in request.POST:
-            message = _('Language code not provided')
 
-        preview_lang = request.POST[LANGUAGE_INPUT_FIELD]
-
+        preview_lang = request.POST.get(LANGUAGE_INPUT_FIELD, '')
         if not preview_lang.strip():
             message = _('Language code not provided')
-
-        if message is None:
+        else:
             # Set the session key to the requested preview lang
             request.session[LANGUAGE_SESSION_KEY] = preview_lang
 
@@ -127,7 +123,6 @@ class DarkLangView(View):
                 preview_language_code=preview_lang
             )
             show_refresh_message = True
-
         context.update({'form_submit_message': message})
         context.update({'success': show_refresh_message})
         response = render_to_response(self.template_name, context)

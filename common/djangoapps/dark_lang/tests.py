@@ -49,8 +49,6 @@ class DarkLangMiddlewareTests(TestCase):
         Args:
             language_session_key (str): The language code to set in request.session[LANUGAGE_SESSION_KEY]
             accept (str): The accept header to set in request.META['HTTP_ACCEPT_LANGUAGE']
-            post_request: Request object, from a previously completed post, this will contain the current session
-            information
         """
         session = {}
         set_if_set(session, LANGUAGE_SESSION_KEY, language_session_key)
@@ -231,42 +229,48 @@ class DarkLangMiddlewareTests(TestCase):
             self.process_middleware_request(accept='{};q=1.0, pt;q=0.5'.format(latin_america_code))
         )
 
-    def assert_request_session_lang_equals(self, value, request):
-        """
-        Assert that the LANGUAGE_SESSION_KEY set in request.session is equal to value
-        """
-        self.assert_session_lang_equals(
-            value,
-            request.session
-        )
-
     def assert_session_lang_equals(self, value, session):
         """
-        Assert that the LANGUAGE_SESSION_KEY set in request.session is equal to value
+        Assert that the LANGUAGE_SESSION_KEY set in session is equal to value
         """
         self.assertEquals(
             value,
             session.get(LANGUAGE_SESSION_KEY, UNSET)
         )
 
-    def post_set_preview_lang(self, preview_language):
+    def _post_set_preview_lang(self, preview_language):
+        """
+        Sends a post request to set the preview language
+        """
         return self.client.post('/update_lang/', {'preview_lang': preview_language, 'set_language': 'set_language'})
 
-    def post_clear_preview_lang(self):
+    def _post_clear_preview_lang(self):
+        """
+        Sends a post request to Clear the preview language
+        """
         return self.client.post('/update_lang/', {'reset': 'reset'})
 
+    def _set_client_session_language(self, session_language):
+        """
+        Set the session language in the Client
+        """
+        session = self.client.session
+        session[LANGUAGE_SESSION_KEY] = session_language
+        session.save()
+
     def test_preview_lang_with_released_language(self):
-        # Preview lang should always override selection.
-        self.post_set_preview_lang('rel')
+        # Preview lang should always override selection
+        self._post_set_preview_lang('rel')
+        # Refresh the page with a get request to confirm the preview language was set
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             'rel',
             response.client.session
         )
 
-        # post_request = self.process_darklang_post_request(preview_lang='rel', language_session_key='notrel')
-        self.post_set_preview_lang('notrel')
-        self.post_set_preview_lang('rel')
+        # Set the session language and ensure that the preview language overrides
+        self._set_client_session_language('notrel')
+        self._post_set_preview_lang('rel')
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             'rel',
@@ -274,7 +278,7 @@ class DarkLangMiddlewareTests(TestCase):
         )
 
     def test_preview_lang_with_dark_language(self):
-        self.post_set_preview_lang('unrel')
+        self._post_set_preview_lang('unrel')
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             'unrel',
@@ -282,26 +286,27 @@ class DarkLangMiddlewareTests(TestCase):
         )
 
         # Test a clear and then a set of the preview language
-        self.post_clear_preview_lang()
-        self.post_set_preview_lang('unrel')
+        self._post_clear_preview_lang()
+        self._post_set_preview_lang('unrel')
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             'unrel',
             response.client.session
         )
 
+    def test_empty_preview_language(self):
         # When posting an empty preview_language the currently set language should not change
-        self.post_clear_preview_lang()
-        self.post_set_preview_lang(' ')
+        self._set_client_session_language('rel')
+        self._post_set_preview_lang(' ')
         response = self.client.get('/home')
         self.assert_session_lang_equals(
-            UNSET,
+            'rel',
             response.client.session
         )
 
     def test_clear_lang(self):
         # Clear a language when no language was set
-        self.post_clear_preview_lang()
+        self._post_clear_preview_lang()
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             UNSET,
@@ -309,8 +314,8 @@ class DarkLangMiddlewareTests(TestCase):
         )
 
         # Set a language and clear it to ensure the clear is working as expected
-        self.post_set_preview_lang('notclear')
-        self.post_clear_preview_lang()
+        self._post_set_preview_lang('notclear')
+        self._post_clear_preview_lang()
         response = self.client.get('/home')
         self.assert_session_lang_equals(
             UNSET,
@@ -325,23 +330,22 @@ class DarkLangMiddlewareTests(TestCase):
             self.process_middleware_request(accept='notrel;q=0.3, rel;q=1.0, unrel;q=0.5')
         )
 
-        self.post_clear_preview_lang()
-        self.assert_request_session_lang_equals(
+        # With DarkLang disabled the clear should not change the session language
+        self._post_clear_preview_lang()
+        self._set_client_session_language('rel')
+        response = self.client.get('/home')
+        self.assert_session_lang_equals(
             'rel',
-            self.process_middleware_request(language_session_key='rel')
+            response.client.session
         )
 
-        self.post_clear_preview_lang()
-        self.post_set_preview_lang('rel')
-        self.assert_request_session_lang_equals(
+        # Test that setting the preview language with DarkLang disabled does nothing
+        self._post_set_preview_lang('rel')
+        self._set_client_session_language('unrel')
+        response = self.client.get('/home')
+        self.assert_session_lang_equals(
             'unrel',
-            self.process_middleware_request(language_session_key='unrel')
-        )
-
-        self.post_set_preview_lang('unrel')
-        self.assert_request_session_lang_equals(
-            'rel',
-            self.process_middleware_request(language_session_key='rel')
+            response.client.session
         )
 
     def test_accept_chinese_language_codes(self):
