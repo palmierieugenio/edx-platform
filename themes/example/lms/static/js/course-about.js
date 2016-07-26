@@ -1,21 +1,21 @@
 
 (function(require) {
-    require(['edx-ui-toolkit/js/utils/html-utils'], function(HtmlUtils) {
+    require(['edx-ui-toolkit/js/utils/html-utils', '/static/example/js/leanModal.js'], function(HtmlUtils, lean) {
         "use strict"
-        $(function() {
-            // Truncating the Course Description
-            var entireDescriptionContent = $(".course-description").html();
-            truncateDescription(entireDescriptionContent);
+      init();
 
-            // Truncating the Course learning points
-            var entireLearningContent = $(".course-learning .list-bulleted").html();
-            truncateLearningPoints(entireLearningContent);
+      function init(){
+        // Truncating the Course Description
+        var entireDescriptionContent = $(".course-description").html();
+        truncateDescription(entireDescriptionContent);
 
-        });
+        // Truncating the Course learning points
+        var entireLearningContent = $(".course-learning .list-bulleted").html();
+        truncateLearningPoints(entireLearningContent);
 
-      $(window).load(function(){
-            $(".instructor-image").leanModal({closeButton: ".modal_close", top: '10%'});
-      });
+        //Instructor Modal
+        $(".instructor-image").leanModal({closeButton: ".modal_close", top: '10%'});
+      }
 
       function expandDescription(entireDescriptionContent) {
          var showLessLinkHtml = '<a id="description_less" href="#" class="brand-link">Less</a>';

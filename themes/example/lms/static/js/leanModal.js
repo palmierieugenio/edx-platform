@@ -133,4 +133,8 @@
       });
     });
   });
-}).call(this, require || RequireJS.require);
+}).call(
+    this,
+    typeof define === 'function' && define.amd ? define :
+        (typeof RequireJS !== 'undefined' ? RequireJS.define : "")
+);
