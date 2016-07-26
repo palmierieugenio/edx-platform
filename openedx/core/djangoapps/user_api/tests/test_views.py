@@ -20,6 +20,7 @@ from social.apps.django_app.default.models import UserSocialAuth
 
 from django_comment_common import models
 from openedx.core.lib.api.test_utils import ApiTestCase, TEST_API_KEY
+from openedx.core.lib.time_zone_utils import get_display_time_zone
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase
 from student.tests.factories import UserFactory
 from third_party_auth.tests.testutil import simulate_running_pipeline, ThirdPartyAuthTestMixin
@@ -2007,5 +2008,8 @@ class CountryTimeZoneListViewTest(UserApiTestCase):
         self.assertIsNone(result["previous"])
         time_zones_info = result["results"]
         self.assertEqual(len(time_zones_info), expected_count)
+        first_time_zone = time_zones_info[0]
+        time_zone_name = first_time_zone['time_zone']
+        self.assertEqual(first_time_zone['description'], get_display_time_zone(time_zone_name))
         for time_zone_info in time_zones_info:
             self._assert_time_zone_is_valid(time_zone_info)
