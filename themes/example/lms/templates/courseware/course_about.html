@@ -9,7 +9,9 @@ from courseware.courses import get_course_about_section
 from django.conf import settings
 from edxmako.shortcuts import marketing_link
 from openedx.core.lib.courses import course_image_url
-from openedx.core.djangolib.markup import HTML
+from openedx.core.djangolib.markup import HTML, Text
+from openedx.core.djangolib.js_utils import js_escaped_string
+
 %>
 
 <%inherit file="../main.html" />
@@ -57,17 +59,17 @@ from openedx.core.djangolib.markup import HTML
         }
         if (jqXHR.status == 400) {
           $("#register_error")
-            .html(jqXHR.responseText ? jqXHR.responseText : "${_("An error occurred. Please try again later.")}")
+            .html(jqXHR.responseText ? jqXHR.responseText : "${_("An error occurred. Please try again later.")| n, js_escaped_string}")
             .css("display", "block");
         }
         else if (jqXHR.status == 403) {
-            location.href = "${reg_then_add_to_cart_link}";
+            location.href = "${reg_then_add_to_cart_link| n, js_escaped_string}";
         }
       };
 
       $("#add_to_cart_post").click(function(event){
         $.ajax({
-          url: "${reverse('add_course_to_cart', args=[course.id.to_deprecated_string()])}",
+          url: "${reverse('add_course_to_cart', args=[course.id.to_deprecated_string()]) | n, js_escaped_string}",
           type: "POST",
           /* Rant: HAD TO USE COMPLETE B/C PROMISE.DONE FOR SOME REASON DOES NOT WORK ON THIS PAGE. */
           complete: add_course_complete_handler
@@ -79,23 +81,23 @@ from openedx.core.djangolib.markup import HTML
     ## making the conditional around this entire JS block for sanity
     %if settings.FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
       <%
-        perms_error = _('The currently logged-in user account does not have permission to enroll in this course. '
+        perms_error = Text(_('The currently logged-in user account does not have permission to enroll in this course. '
                         'You may need to {start_logout_tag}log out{end_tag} then try the enroll button again. '
-                        'Please visit the {start_help_tag}help page{end_tag} for a possible solution.').format(
-                          start_help_tag="<a href='{url}'>".format(url=marketing_link('FAQ')), end_tag='</a>',
-                          start_logout_tag="<a href='{url}'>".format(url=reverse('logout'))
+                        'Please visit the {start_help_tag}help page{end_tag} for a possible solution.')).format(
+                          start_help_tag=HTML("<a href='/faq'>"), end_tag=HTML('</a>'),
+                          start_logout_tag=HTML("<a href='/logout'>")
                           )
       %>
     $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
       if(xhr.status == 200) {
-        location.href = "${reverse('dashboard')}";
+        location.href = "${reverse('dashboard')| n, js_escaped_string}";
       } else if (xhr.status == 403) {
-        location.href = "${reverse('course-specific-register', args=[course.id.to_deprecated_string()])}?course_id=${course.id | u}&enrollment_action=enroll";
+        location.href = "${reverse('course-specific-register', args=[course.id.to_deprecated_string()])| n, js_escaped_string}?course_id=${course.id | u}&enrollment_action=enroll";
       } else if (xhr.status == 400) { //This means the user did not have permission
-        $('#register_error').html("${perms_error}").css("display", "block");
+        $('#register_error').html("${perms_error| n, js_escaped_string}").css("display", "block");
       } else {
         $('#register_error').html(
-            (xhr.responseText ? xhr.responseText : "${_("An error occurred. Please try again later.")}")
+            (xhr.responseText ? xhr.responseText : "${_("An error occurred. Please try again later.")| n, js_escaped_string}")
         ).css("display", "block");
       }
     });
@@ -105,7 +107,7 @@ from openedx.core.djangolib.markup import HTML
     $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
       if(xhr.status == 200) {
         if (xhr.responseText == "") {
-          location.href = "${reverse('dashboard')}";
+          location.href = "${reverse('dashboard')| n, js_escaped_string}";
         }
         else {
           location.href = xhr.responseText;
@@ -114,10 +116,10 @@ from openedx.core.djangolib.markup import HTML
           // If the form submission receives a Forbidden response, the user is not currently authenticated
           // Include the purchase workflow context along with the regular user registration location information
           var purchase_workflow = "&purchase_workflow=" + $("input#purchase_workflow").val();
-          location.href = "${reverse('register_user')}?course_id=${course.id | u}&enrollment_action=enroll" + purchase_workflow;
+          location.href = "${reverse('register_user')| n, js_escaped_string}?course_id=${course.id | u}&enrollment_action=enroll" + purchase_workflow;
       } else {
         $('#register_error').html(
-            (xhr.responseText ? xhr.responseText : "${_("An error occurred. Please try again later.")}")
+            (xhr.responseText ? xhr.responseText : "${_("An error occurred. Please try again later.")| n, js_escaped_string}")
         ).css("display", "block");
       }
     });
@@ -305,16 +307,25 @@ from openedx.core.djangolib.markup import HTML
             <div class="course-features group-purchase">
               <h2>${_("Want to purchase this course for a group?")} </h2>
               <p>${_("You can purchase enrollment codes for this course to distribute to your team")}</p>
-              % if ecommerce_bulk_checkout_link:
+
+              % if not ecommerce_bulk_checkout_link:
+                <%
+                    url = "mailto:harvardxplus@harvard.edu?Subject={course_id}%20{run}%20Bulk%20Discount".format(course_id=course_details.course_id, run=course_details.run)
+                    link_start = HTML("<a href='{url}'>").format(url=Text(url))
+                %>
               <a href="${ecommerce_bulk_checkout_link}" id="ecommerce_bulk_checkout_button" class="btn-block btn-success btn-large btn-enroll ${btn_class_bulk}">${_("Purchase for a Group")}</a>
               <p>
                 ${Text(_("Bulk discounts may apply for groups larger than 10. Contact {link_start}harvardxplus@harvard.edu{link_end} for more information.")).format(
-                  link_start=HTML('<a href="mailto:harvardxplus@harvard.edu?Subject=' + course_details.course_id + '%20' + course_details.run + '%20Bulk%20Discount">'),
+                  link_start=HTML(link_start),
                   link_end=HTML('</a>')
                 )}
               </p>
               % else:
-              <a href="mailto:harvardxplus@harvard.edu?Subject=${course_details.course_id}%20${course_details.run}%20Group%20Purchase" class="btn-block btn-success btn-large btn-enroll">${_("Email Us")}</a>
+                <%
+                    url = "mailto:harvardxplus@harvard.edu?Subject={course_id}%20{run}%20Group%20Purchase".format(
+                          course_id=course_details.course_id, run=course_details.run)
+                %>
+              <a href="${url}" class="btn-block btn-success btn-large btn-enroll">${_("Email Us")}</a>
               % endif
             </div>
           </div>
