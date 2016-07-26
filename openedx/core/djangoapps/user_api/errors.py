@@ -94,6 +94,7 @@ class PreferenceUpdateError(PreferenceRequestError):
         self.developer_message = developer_message
         self.user_message = user_message
 
+
 class CountryCodeError(Exception):
     """There was a problem with the country code"""
     pass

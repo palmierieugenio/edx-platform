@@ -1,5 +1,6 @@
 """HTTP end-points for the User API. """
 import copy
+import json
 
 from opaque_keys import InvalidKeyError
 from django.conf import settings
@@ -39,7 +40,7 @@ from .accounts import (
     USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH
 )
 from .accounts.api import check_account_exists
-from .serializers import UserSerializer, UserPreferenceSerializer
+from .serializers import CountryTimeZoneSerializer, UserSerializer, UserPreferenceSerializer
 
 
 class LoginSessionView(APIView):
@@ -1040,11 +1041,13 @@ class UpdateEmailOptInPreference(APIView):
 
 class CountryTimeZoneListView(generics.ListAPIView):
     """
-    DRF class for
+    DRF class for listing common time zones for given country
+    or all time zones if no country given
     """
-    paginate_by = 10
-    paginate_by_param = "page_size"
+    serializer_class = CountryTimeZoneSerializer
+    paginate_by = 450
+    paginate_by_param = 'page_size'
 
     def get_queryset(self):
-        country_code = self.kwargs['country_code'] if self.kwargs['country_code'] else None
+        country_code = self.request.query_params.get('country_code', None)
         return get_country_time_zones(country_code)

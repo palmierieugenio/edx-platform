@@ -440,7 +440,7 @@ class CountryTimeZoneTest(TestCase):
     """
 
     @ddt.data(('NZ', ['Pacific/Auckland', 'Pacific/Chatham']),
-              (None , common_timezones))
+              (None, common_timezones))
     @ddt.unpack
     def test_get_country_time_zones(self, country_code, expected_time_zones):
         """Verify that list of common country time zones are returned"""
