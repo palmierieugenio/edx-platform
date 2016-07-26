@@ -67,6 +67,8 @@ SASS_LOOKUP_DEPENDENCIES = {
 # Collectstatic log directory setting
 COLLECTSTATIC_LOG_DIR_ARG = "collect_log_dir"
 
+# UNSET = object() or DEBUG = object()
+
 
 def get_sass_directories(system, theme_dir=None):
     """
