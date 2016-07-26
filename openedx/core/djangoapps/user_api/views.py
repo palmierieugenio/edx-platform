@@ -1069,5 +1069,5 @@ class CountryTimeZoneListView(generics.ListAPIView):
     paginate_by_param = 'page_size'
 
     def get_queryset(self):
-        country_code = self.request.query_params.get('country_code', None)
+        country_code = self.request.GET.get('country_code', None)
         return get_country_time_zones(country_code)
