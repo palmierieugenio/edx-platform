@@ -1970,8 +1970,8 @@ class CountryTimeZoneListViewTest(UserApiTestCase):
     """
     Test cases covering the list viewing behavior for country time zones
     """
-    ALL_TIME_ZONES_URI = "/user_api/v1/preferences/country_tz/"
-    COUNTRY_TIME_ZONES_URI = "/user_api/v1/preferences/country_tz/?country_code=CA"
+    ALL_TIME_ZONES_URI = "/user_api/v1/preferences/time_zones/"
+    COUNTRY_TIME_ZONES_URI = "/user_api/v1/preferences/time_zones/?country_code=cA"
 
     @ddt.data(ALL_TIME_ZONES_URI, COUNTRY_TIME_ZONES_URI)
     def test_options(self, country_uri):

@@ -1040,8 +1040,28 @@ class UpdateEmailOptInPreference(APIView):
 
 class CountryTimeZoneListView(generics.ListAPIView):
     """
-    DRF class for listing common time zones for given country
-    or all time zones if no country given
+    **Use Cases**
+
+        Retrieves a list of all time zones, by default, or common time zones for country, if given
+
+        The country is passed in as its ISO 3166-1 Alpha-2 country code as an
+        optional 'country_code' argument. The country code is also case-insensitive.
+
+    **Example Requests**
+
+        GET /user_api/v1/preferences/time_zones/
+
+        GET /user_api/v1/preferences/time_zones/?country_code=FR
+
+    **Example GET Response**
+
+        If the request is successful, an HTTP 200 "OK" response is
+        returned along with a list of information for all time zones
+        or for time zones used in a country, if given.
+
+        Each time zone information contains the following values.
+
+            * time_zone: The name of the time zone.
     """
     serializer_class = CountryTimeZoneSerializer
     paginate_by = 450

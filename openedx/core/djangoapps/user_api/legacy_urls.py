@@ -30,7 +30,7 @@ urlpatterns = patterns(
         name="preferences_email_opt_in"
     ),
     url(
-        r'^v1/preferences/country_tz/$',
+        r'^v1/preferences/time_zones/$',
         user_api_views.CountryTimeZoneListView.as_view(),
     ),
 )

@@ -432,6 +432,6 @@ def get_country_time_zones(country_code=None):
     """
     if country_code is None:
         return common_timezones
-    if country_code in set(countries.alt_codes):
+    if country_code.upper() in set(countries.alt_codes):
         return country_timezones(country_code)
     raise CountryCodeError

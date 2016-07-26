@@ -83,7 +83,7 @@ class ReadOnlyFieldsSerializerMixin(object):
         return tuple(set(all_fields) - set(cls.get_read_only_fields()))
 
 
-class CountryTimeZoneSerializer(serializers.Serializer):  # pylint: disable=W0223
+class CountryTimeZoneSerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """
     Serializer that generates a list of common time zones for a country
     """

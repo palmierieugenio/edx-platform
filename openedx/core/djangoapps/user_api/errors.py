@@ -95,6 +95,6 @@ class PreferenceUpdateError(PreferenceRequestError):
         self.user_message = user_message
 
 
-class CountryCodeError(Exception):
+class CountryCodeError(ValueError):
     """There was a problem with the country code"""
     pass

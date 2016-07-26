@@ -22,12 +22,21 @@ from xmodule.modulestore.tests.factories import CourseFactory
 
 from ...accounts.api import create_account
 from ...errors import (
-    UserNotFound, UserNotAuthorized, PreferenceValidationError, PreferenceUpdateError, CountryCodeError,
+    UserNotFound,
+    UserNotAuthorized,
+    PreferenceValidationError,
+    PreferenceUpdateError,
+    CountryCodeError,
 )
 from ...models import UserProfile, UserOrgTag
 from ...preferences.api import (
-    get_user_preference, get_user_preferences, set_user_preference, update_user_preferences, delete_user_preference,
-    update_email_opt_in, get_country_time_zones
+    get_user_preference,
+    get_user_preferences,
+    set_user_preference,
+    update_user_preferences,
+    delete_user_preference,
+    update_email_opt_in,
+    get_country_time_zones,
 )
 
 
