@@ -1055,13 +1055,14 @@ class CountryTimeZoneListView(generics.ListAPIView):
 
     **Example GET Response**
 
-        If the request is successful, an HTTP 200 "OK" response is
-        returned along with a list of information for all time zones
-        or for time zones used in a country, if given.
+        If the request is successful, an HTTP 200 "OK" response is returned along with a
+        list of time zone dictionaries for all time zones or just for time zones commonly
+        used in a country, if given.
 
-        Each time zone information contains the following values.
+        Each time zone dictionary contains the following values.
 
             * time_zone: The name of the time zone.
+            * description: The display version of the time zone
     """
     serializer_class = CountryTimeZoneSerializer
     paginate_by = 450

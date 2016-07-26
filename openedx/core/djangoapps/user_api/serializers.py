@@ -3,6 +3,8 @@ Django REST Framework serializers for the User API application
 """
 from django.contrib.auth.models import User
 from rest_framework import serializers
+
+from openedx.core.lib.time_zone_utils import get_display_time_zone
 from student.models import UserProfile
 
 from .models import UserPreference
@@ -88,7 +90,16 @@ class CountryTimeZoneSerializer(serializers.Serializer):  # pylint: disable=abst
     Serializer that generates a list of common time zones for a country
     """
     time_zone = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
 
-    def get_time_zone(self, time_zone):
-        """ Returns inputted time zone """
-        return time_zone
+    def get_time_zone(self, time_zone_name):
+        """
+        Returns inputted time zone name
+        """
+        return time_zone_name
+
+    def get_description(self, time_zone_name):
+        """
+        Returns the display version of time zone [e.g. US/Pacific (PST, UTC-0800)]
+        """
+        return get_display_time_zone(time_zone_name)
