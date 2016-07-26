@@ -109,6 +109,7 @@ def login_and_registration_form(request, initial_mode="login"):
             'third_party_auth': _third_party_auth_context(request, redirect_to),
             'third_party_auth_hint': third_party_auth_hint or '',
             'platform_name': get_themed_value('PLATFORM_NAME', settings.PLATFORM_NAME),
+            'support_link': get_themed_value('SUPPORT_SITE_LINK', settings.SUPPORT_SITE_LINK),
 
             # Include form descriptions retrieved from the user API.
             # We could have the JS client make these requests directly,
@@ -147,8 +148,7 @@ def password_change_request_handler(request):
 
     Returns:
         HttpResponse: 200 if the email was sent successfully
-        HttpResponse: 400 if there is no 'email' POST parameter, or if no user with
-            the provided email exists
+        HttpResponse: 400 if there is no 'email' POST parameter
         HttpResponse: 403 if the client has been rate limited
         HttpResponse: 405 if using an unsupported HTTP method
 
@@ -157,6 +157,7 @@ def password_change_request_handler(request):
         POST /account/password
 
     """
+
     limiter = BadRequestRateLimiter()
     if limiter.is_rate_limit_exceeded(request):
         AUDIT_LOG.warning("Password reset rate limit exceeded")
@@ -173,8 +174,6 @@ def password_change_request_handler(request):
             AUDIT_LOG.info("Invalid password reset attempt")
             # Increment the rate limit counter
             limiter.tick_bad_request_counter(request)
-
-            return HttpResponseBadRequest(_("No user with the provided email address exists."))
 
         return HttpResponse(status=200)
     else:
