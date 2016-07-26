@@ -1,6 +1,5 @@
 """HTTP end-points for the User API. """
 import copy
-import json
 
 from opaque_keys import InvalidKeyError
 from django.conf import settings
