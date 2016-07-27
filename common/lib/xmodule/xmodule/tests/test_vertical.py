@@ -5,9 +5,9 @@ import ddt
 from mock import Mock
 from fs.memoryfs import MemoryFS
 from xmodule.tests import get_test_system
+from xmodule.tests.helpers import StubUserService
 from xmodule.tests.xml import XModuleXmlImportTest
 from xmodule.tests.xml import factories as xml
-from xmodule.tests.helpers import StubUserService
 from xmodule.x_module import STUDENT_VIEW, AUTHOR_VIEW
 
 
