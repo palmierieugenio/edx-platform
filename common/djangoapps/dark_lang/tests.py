@@ -331,8 +331,8 @@ class DarkLangMiddlewareTests(TestCase):
         )
 
         # With DarkLang disabled the clear should not change the session language
-        self._post_clear_preview_lang()
         self._set_client_session_language('rel')
+        self._post_clear_preview_lang()
         self.client.get('/home')
         self.assert_session_lang_equals(
             'rel',
@@ -340,8 +340,8 @@ class DarkLangMiddlewareTests(TestCase):
         )
 
         # Test that setting the preview language with DarkLang disabled does nothing
-        self._post_set_preview_lang('rel')
         self._set_client_session_language('unrel')
+        self._post_set_preview_lang('rel')
         self.client.get('/home')
         self.assert_session_lang_equals(
             'unrel',

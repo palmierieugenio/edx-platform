@@ -127,7 +127,7 @@ class I18nRegressionTests(BaseI18nTestCase):
         self.assert_tag_has_attr(response.content, "html", "lang", "fa")
 
         # Now try to access with dark lang
-        self.client.post('/update_lang/', {'preview_lang': 'fa-ir', 'set_language': 'set_language'})
+        self.client.post(self.preview_language_url, {'preview_lang': 'fa-ir', 'set_language': 'set_language'})
         response = self.client.get(self.url)
         self.assert_tag_has_attr(response.content, "html", "lang", "fa-ir")
 

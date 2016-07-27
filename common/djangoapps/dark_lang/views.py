@@ -116,7 +116,7 @@ class DarkLangView(View):
             # Make sure that we set the requested preview lang as the dark lang preference for the
             # user, so that the lang_pref middleware doesn't clobber away the dark lang preview.
             auth_user = request.user
-            if auth_user and message is None:
+            if auth_user:
                 set_user_preference(request.user, DARK_LANGUAGE_KEY, preview_lang)
 
             message = _('Language set to language code: {preview_language_code}').format(
